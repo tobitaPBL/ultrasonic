@@ -33,7 +33,8 @@ class SqueakyChat:
   def start_chat(self):
     while True:
       try:
-        s = raw_input('')
+        s = input('>')
+        print("*****" + s)
         if len(s) < 1:
           continue
         self.dec.stop_listening()
@@ -43,6 +44,7 @@ class SqueakyChat:
       except:
         self.dec.quit()
         self.enc.quit()
+        print("Unexpected error:", sys.exc_info()[0])
         sys.exit(0)
 
 if __name__ == "__main__":
@@ -50,4 +52,3 @@ if __name__ == "__main__":
 
   chat = SqueakyChat()
   chat.start_chat()
-  

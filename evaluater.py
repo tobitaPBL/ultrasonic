@@ -22,4 +22,4 @@ if __name__ == "__main__":
     parser.add_argument('received', help="Received text")
     args = parser.parse_args()
 
-    print levenshteinDistance(args.sent, args.received)
+    print(levenshteinDistance(args.sent, args.received))

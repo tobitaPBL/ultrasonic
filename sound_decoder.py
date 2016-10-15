@@ -78,7 +78,7 @@ class Decoder:
 
   def printbuf(self, buf):
     newbuf = ['-' if x is -1 else x for x in buf]
-    print repr(newbuf).replace(', ', '').replace('\'', '')
+    print(repr(newbuf).replace(', ', '').replace('\'', ''))
 
   # Takes the raw noisy samples of -1/0/1 and finds the bitstream from it
   def signal_to_bits(self):
