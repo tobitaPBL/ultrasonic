@@ -1,22 +1,34 @@
 # プロトコル定義
 
-## Header
+## Network Layer
 
-### version
+### Header
+
+#### version
 - プロトコルバージョンを定義
 - 4bit ?
 
-### データ長
+#### データ長
 - ヘッダ+データ部の長さ？
 - データ部のみの長さ？
 - 8 or 16 bit ?
 
-### Network Byte Order
+#### フラグメント(パケット的な単位を作るなら必要)
 
-big endianで.
+##### ID
 
-### フラグメント
+#####
 
-#### ID ?
+### データ部
 
-#### 
+#### Network Byte Order
+
+big endian
+
+## Transport Layer
+
+### Header
+
+#### Content-type
+
+text/plain;charset=ascii
