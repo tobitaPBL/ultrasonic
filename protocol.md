@@ -2,6 +2,8 @@
 
 ## Network Layer
 
+Physical Layer以下に対しての制御情報を設定する
+
 ### Header
 
 #### version
@@ -26,6 +28,8 @@
 big endian
 
 ## Transport Layer
+
+Network Layer以下に対しての制御情報を設定する
 
 ### Header
 
