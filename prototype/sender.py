@@ -5,7 +5,7 @@ import argparse
 class Sender:
   def __init__(self):
     self.transporter = Transporter()
-    self.transporter.set_header("content-type", "text/plain; charset=US-ASCII")
+    self.transporter.set_header("charset", "UTF-8") # TODO:必要？ unicodeだけで良いのかも？
 
   def send(self, message):
     self.transporter.send(message)
