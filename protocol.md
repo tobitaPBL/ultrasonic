@@ -23,6 +23,8 @@ Physical Layer以下に対しての制御情報を設定する
 
 ### データ部
 
+最小データ長は1byte
+
 #### Network Byte Order
 
 big endian
