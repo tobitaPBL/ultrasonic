@@ -22,21 +22,22 @@ class Encoder:
   def string2sound(self, somestring):
     samples = None
     count = 0
-    binform = ''.join('-1' + format(ord(i), 'b').zfill(8) for i in somestring)
+    binform = ''.join('-001' + format(ord(i), 'b').zfill(8) for i in somestring)#
     # 2進数にした後、2ビットずつに分割してそれぞれを10進数に変換
-    multiple = [int(binform[i:i+2], 2) for i in range(len(binform)) if i % 2 == 0]
-    soundlist = []
-    for m in multiple:
-      freq = ZERO
-      if m == 1:
-        freq = ONE
-      elif m == 2:
-        freq = TWO
-      elif m == 3:
-        freq = THREE
-      elif m == -1:
-        freq = CHARSTART
-      soundlist = np.hstack((soundlist, self.getbit(freq)))
+    multiple = [int(binform[i:i+4], 2) for i in range(len(binform)) if i % 4 == 0]#
+    soundlist = np.hstack([self.getbit(CHAR_FREQ[i+1]) for i in multiple])
+    # soundlist = []
+    # for m in multiple:
+    #   freq = ZERO
+    #   if m == 1:
+    #     freq = ONE
+    #   elif m == 2:
+    #     freq = TWO
+    #   elif m == 3:
+    #     freq = THREE
+    #   elif m == -1:
+    #     freq = CHARSTART
+    #   soundlist = np.hstack((soundlist, self.getbit(freq)))
     return soundlist
 
   def encode2wav(self, somestring, filename):
