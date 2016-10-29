@@ -5,6 +5,7 @@ import threading
 class UltrasonicNetwork:
   def __init__(self, version=1):
     self.version = version
+    self.transducer = Transducer()
 
 
   def send(self, data):
@@ -17,7 +18,7 @@ class UltrasonicNetwork:
     print("Binarize: %s" %  [format(int(d), 'b') for d in data])
     # ヘッダを含めて全てバイナリ化
     # transducerへ渡す
-    transducer.send(data)
+    self.transducer.send(data)
     pass
 
   def start_listening(self):
