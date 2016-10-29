@@ -4,6 +4,8 @@ import threading
 
 class UltrasonicNetwork:
   def __init__(self, version=1):
+    self.do_quit = False
+    self.do_listen = False
     self.version = version
     self.transducer = Transducer()
 
@@ -41,7 +43,14 @@ class UltrasonicNetwork:
       if self.do_listen == False:
         continue
       # transducerからバイナリ
-      bdata = None
+      bdata = self.transducer.receive()
+#       bdata = ("""
+# charset=UTF-8
+
+# %s
+#       """ % input()).encode("UTF-8")
+#       self.do_quit = True
+
       data = bytearray(bdata)
       # ヘッダ取得
       self.__parse_header(data)
