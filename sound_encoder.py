@@ -22,13 +22,19 @@ class Encoder:
   def string2sound(self, somestring):
     samples = None
     count = 0
-    binform = ''.join('2' + format(ord(i), 'b').zfill(8) for i in somestring)
+    binform = ''.join('-1' + format(ord(i), 'b').zfill(8) for i in somestring)
+    # 2進数にした後、2ビットずつに分割してそれぞれを10進数に変換
+    multiple = [int(binform[i:i+2], 2) for i in range(len(binform)) if i % 2 == 0]
     soundlist = []
-    for b in binform:
+    for m in multiple:
       freq = ZERO
-      if (b is '1'):
+      if m == 1:
         freq = ONE
-      elif (b is '2'):
+      elif m == 2:
+        freq = TWO
+      elif m == 3:
+        freq = THREE
+      elif m == -1:
         freq = CHARSTART
       soundlist = np.hstack((soundlist, self.getbit(freq)))
     return soundlist
@@ -43,8 +49,8 @@ class Encoder:
 
   def getbit(self, freq):
 
-    music=[]
-    t=np.arange(0,BIT_DURATION,1./RATE) #time
+    music = []
+    t = np.arange(0, BIT_DURATION, 1./RATE) #time
 
     x = np.sin(2*np.pi*freq*t) #generated signals
     x = [int(val * 32000) for val in x]
@@ -57,7 +63,7 @@ class Encoder:
       x[xstart + i] = x[xstart + i] * sigmoid_inv[i]
       x[i] = x[i] * sigmoid[i]
 
-    music=np.hstack((music,x))
+    music = np.hstack((music,x))
     return music
 
   def quit(self):
