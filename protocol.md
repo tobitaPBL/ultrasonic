@@ -29,7 +29,16 @@ big endian
 
 ## Transport Layer
 
-Network Layer以下に対しての制御情報を設定する
+Network Layer以下に対しての制御情報を設定する.
+
+### 構成
+
+```
+header_key=value
+\n
+body
+\n
+```
 
 ### Header
 
