@@ -84,7 +84,9 @@ class Decoder:
     self.do_quit = True
 
   def printbuf(self, buf):
-    newbuf = ['-' if x is -2 else x for x in buf]
+    newbuf = ['-' if x is -3 else x for x in buf]#
+    newbuf = ['s' if x is -1 else x for x in newbuf]#
+    newbuf = ['e' if x is -2 else x for x in newbuf]#
     print(repr(newbuf).replace(', ', ' ').replace('\'', ''))
 
   # Takes the raw noisy samples of -1/0/1 and finds the bitstream from it
@@ -97,7 +99,7 @@ class Decoder:
     if self.debug:
       self.printbuf(buf)
     
-    costs = [[] for i in range(18)]#
+    costs = [[] for i in range(19)]#
     for i in range(self.win_fudge):
       win = buf[i : self.win_len + i]
       #
@@ -106,7 +108,7 @@ class Decoder:
       costs[2].append(sum(x != 2 for x in win))
       costs[3].append(sum(x != 3 for x in win))
       costs[4].append(sum(x != 4 for x in win))
-      costs[5].append(sum(x != 5for x in win))
+      costs[5].append(sum(x != 5 for x in win))
       costs[6].append(sum(x != 6 for x in win))
       costs[7].append(sum(x != 7 for x in win))
       costs[8].append(sum(x != 8 for x in win))
@@ -119,8 +121,9 @@ class Decoder:
       costs[15].append(sum(x != 15 for x in win))
       costs[16].append(sum(x != -1 for x in win))
       costs[17].append(sum(x != -2 for x in win))
+      costs[18].append(sum(x != -3 for x in win))
       #
-    min_costs = [min(costs[i]) for i in range(18)]#
+    min_costs = [min(costs[i]) for i in range(19)]#
     min_cost = min(min_costs)
     signal = min_costs.index(min_cost)
     fudge = costs[signal].index(min_cost)
@@ -130,13 +133,20 @@ class Decoder:
     # If we got a signal, put it in the byte!
     if signal < 16:#
       self.byte.append(signal)
+
     # If we get a charstart signal, reset byte!
     elif signal == 16:#
-      signal = -1
+      signal = 's'
       self.byte = []
+
+    # If we get a charend signal, reset byte!
+    elif signal == 17:#
+      signal = 'e'
+      self.byte = []
+      self.buffer = deque()
     
     # If we get no signal, increment idlecount if we are idling
-    if signal == 17:#
+    if signal == 18:#
       self.idlecount += 1
     else:
       self.idlecount = 0
@@ -145,7 +155,7 @@ class Decoder:
       self.idle_callback()
 
     if self.debug:
-      if signal == 17:#
+      if signal == 18:#
         signal = '-'
       sys.stdout.write('')
       sys.stdout.write('|{}|\n'.format(signal))
@@ -169,7 +179,7 @@ class Decoder:
 
   # Determine the raw input signal of silences, 0s, 1s, 2s, and 3s. Insert into sliding window.
   def update_state(self, powerlist, base):
-    state = -2 # 無音
+    state = -3 # 無音
 
     # 各周波数のパワーがしきい値を超えているか判定
     pw = powerlist / base
@@ -179,7 +189,7 @@ class Decoder:
 
      # 最大値を求める
     if sum(judge) > 0:
-      state = np.argmax(pw) - 1
+      state = int(np.argmax(pw) - 2)
 
     # 各周波数のパワーがしきい値を超えているかを判定しているが最大値を見ていない
     # if power3 / base > THREE_THRESH:

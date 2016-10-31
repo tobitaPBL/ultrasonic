@@ -6,7 +6,8 @@ AUDIOBUF_SIZE = 1024 #2048
 # Constants for FSK
 BASELINE = 17200.0
 
-CHAR_FREQ = [17600.0,# start
+CHAR_FREQ = [17400.0, # end
+			 17500.0, # start
 			 17750.0, # 0
 			 17900.0, # 1
 			 18050.0, # 2
@@ -24,7 +25,8 @@ CHAR_FREQ = [17600.0,# start
 			 19850.0, # 14
 			 20000.0] # 15
 
-CHAR_THRESH = [100,# start
+CHAR_THRESH = [50, # end
+			   50, # start
 			   50, # 0
 			   50, # 1
 			   50, # 2
@@ -57,5 +59,5 @@ CHAR_THRESH = [100,# start
 # THREE = 20000.0
 # THREE_THRESH = 20
 
-BIT_DURATION = 0.05 # 0.1
+BIT_DURATION = 0.025 # 0.1
 IDLE_LIMIT = 10 # If we don't hear anything for a while (~2sec), clear buffer.

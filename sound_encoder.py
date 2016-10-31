@@ -22,10 +22,10 @@ class Encoder:
   def string2sound(self, somestring):
     samples = None
     count = 0
-    binform = ''.join('-001' + format(ord(i), 'b').zfill(8) for i in somestring)#
+    binform = ''.join('-001' + format(ord(i), 'b').zfill(8) for i in somestring) + '-010'#
     # 2進数にした後、2ビットずつに分割してそれぞれを10進数に変換
     multiple = [int(binform[i:i+4], 2) for i in range(len(binform)) if i % 4 == 0]#
-    soundlist = np.hstack([self.getbit(CHAR_FREQ[i+1]) for i in multiple])
+    soundlist = np.hstack([self.getbit(CHAR_FREQ[i+2]) for i in multiple])
     # soundlist = []
     # for m in multiple:
     #   freq = ZERO
@@ -56,7 +56,7 @@ class Encoder:
     x = np.sin(2*np.pi*freq*t) #generated signals
     x = [int(val * 32000) for val in x]
 
-    sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.02)] #0.01
+    sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.04)] #0.01
     sigmoid_inv = sigmoid[::-1]
 
     xstart = len(x) - len(sigmoid)
