@@ -36,30 +36,33 @@ class Decoder:
                   input = True,
                   frames_per_buffer = AUDIOBUF_SIZE)
 
-    listen_thread = threading.Thread(target = self.listen)
-    listen_thread.start()
+    # listen_thread = threading.Thread(target = self.listen)
+    # listen_thread.start()
 
   def listen(self):
-    self.do_listen = True
-    while (True):
-      if self.do_quit == True:
-        break
-      audiostr = self.stream.read(CHUNK_SIZE)
-      if self.do_listen == False:
-        continue
-      self.audio = list(struct.unpack("%dh" % CHUNK_SIZE, audiostr))
-      self.window()
-      power0 = self.goertzel(ZERO)
-      power1 = self.goertzel(ONE)
-      powerC = self.goertzel(CHARSTART)
-      base = self.goertzel(BASELINE)
-      self.update_state(power0, power1, powerC, base)
-      self.signal_to_bits()
-      self.process_byte()
+    import time
+    time.sleep(3)
+    return "abcde".encode("UTF-8")
+    # self.do_listen = True
+    # while (True):
+    #   if self.do_quit == True:
+    #     break
+    #   audiostr = self.stream.read(CHUNK_SIZE)
+    #   if self.do_listen == False:
+    #     continue
+    #   self.audio = list(struct.unpack("%dh" % CHUNK_SIZE, audiostr))
+    #   self.window()
+    #   power0 = self.goertzel(ZERO)
+    #   power1 = self.goertzel(ONE)
+    #   powerC = self.goertzel(CHARSTART)
+    #   base = self.goertzel(BASELINE)
+    #   self.update_state(power0, power1, powerC, base)
+    #   self.signal_to_bits()
+    #   self.process_byte()
 
-    self.stream.stop_stream()
-    self.stream.close()
-    self.p.terminate()
+    # self.stream.stop_stream()
+    # self.stream.close()
+    # self.p.terminate()
 
   def attach_character_callback(self, func):
     self.character_callback = func
