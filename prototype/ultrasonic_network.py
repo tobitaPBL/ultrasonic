@@ -15,7 +15,8 @@ class UltrasonicNetwork:
     @param data bytes or bytearray class data.
     """
 
-    data = bytearray(data)
+    header_data = bytearray(self.__build_header(self.version))
+    data = header_data + bytearray(data)
     print("Decimalize: %s" % [int(d) for d in data])
     print("Binarize: %s" %  [format(int(d), 'b') for d in data])
     # ヘッダを含めて全てバイナリ化
@@ -44,11 +45,12 @@ class UltrasonicNetwork:
         continue
       # transducerからバイナリ
       bdata = self.transducer.receive()
-#       bdata = ("""
+#       header = (16).to_bytes(1, "big")
+#       bdata = bytearray(header) + bytearray(("""
 # charset=UTF-8
 
 # %s
-#       """ % input()).encode("UTF-8")
+#       """ % input()).encode("UTF-8"))
 #       self.do_quit = True
 
       data = bytearray(bdata)
@@ -64,12 +66,23 @@ class UltrasonicNetwork:
     """
     self.receive_callback = func
 
+  def __build_header(self, version):
+    u"""
+    |version(4bit)|padding(0, 4bit)|
+    """
+    binary_string = format(version, 'b').zfill(4).ljust(8, '0')
+    return int(binary_string, 2).to_bytes(1, "big")
+
   def __parse_header(self, data):
       # version
+      header = data[0]
+      bin_version = format(header, 'b').rstrip("0")
+      self.version = int(bin_version, 2)
+      print("version : %s" % self.version)
       # データ長
       pass
 
   def __parse_body(self, data):
       # data body
-      return data
+      return data[1:]
 
