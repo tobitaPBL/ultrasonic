@@ -8,6 +8,8 @@ import math
 import numpy
 import sys
 import threading
+import reedsolo
+from ecc import OnebyteReadSolomonEcc
 
 from constants import *
 
@@ -35,7 +37,7 @@ class Decoder:
                   rate = RATE,
                   input = True,
                   frames_per_buffer = AUDIOBUF_SIZE)
-    
+    self.coder = OnebyteReadSolomonEcc()
     listen_thread = threading.Thread(target = self.listen)
     listen_thread.start()
 
@@ -126,18 +128,38 @@ class Decoder:
       sys.stdout.write('|{}|\n'.format(signal))
       sys.stdout.flush()
 
+
+  def split(self, li, num):
+      l = [li[i:i+8] for i in range(0,24,8)]
+      res = []
+      for dd in l:
+        res.append(self.intint(dd))
+      return res
+
+  def intint(self, bb):
+    ascii = 0
+    for bit in bb:
+      ascii = (ascii << 1) | bit
+    return ascii
+
+  def decode_chr(self):
+    rs = reedsolo.RSCodec(2)
+    print("****")
+    print(self.byte)
+    sl = self.split(self.byte, 8)
+    print("****:sl" + str(sl))
+    return rs.decode(sl)
+
   # For now, just print out the characters as we go.
   def process_byte(self):
-    if len(self.byte) != 8:
+    if len(self.byte) != (8 * 3):
       return
-    ascii = 0
-    for bit in self.byte:
-      ascii = (ascii << 1) | bit
-    char = chr(ascii)
+    char_d = self.coder.decode_from_bytes_string(self.byte)
+    print("*+*:" + char_d)
     if self.character_callback:
-      self.character_callback(char)
+      self.character_callback(char_d)
     else:
-      sys.stdout.write(char)
+      sys.stdout.write(char_d)
       sys.stdout.flush()
     self.byte = []
 

@@ -3,6 +3,7 @@ import argparse
 import numpy as np
 import pyaudio
 from scipy.io import wavfile
+from ecc import OnebyteReadSolomonEcc
 
 from constants import *
 
@@ -18,11 +19,12 @@ class Encoder:
                   rate = RATE,
                   output = True,
                   frames_per_buffer = AUDIOBUF_SIZE)
+    self.coder = OnebyteReadSolomonEcc()
 
   def string2sound(self, somestring):
     samples = None
     count = 0
-    binform = ''.join('2' + format(ord(i), 'b').zfill(8) for i in somestring)
+    binform = ''.join('2' + self.coder.get_encoded_bytes_string(i) for i in somestring)
     soundlist = []
     for b in binform:
       freq = ZERO
