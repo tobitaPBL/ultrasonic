@@ -9,7 +9,7 @@ import numpy
 import sys
 import threading
 import reedsolo
-from ecc import OnebyteReadSolomonEcc
+from ecc import OnebyteReedSolomonEcc, EmptyEcc
 
 from constants import *
 
@@ -18,7 +18,7 @@ TWOPI = 2 * math.pi
 WINDOW = numpy.hamming(CHUNK_SIZE)
 
 class Decoder:
-  
+
   def __init__(self, debug):
     self.win_len = 2 * int(BIT_DURATION * RATE / CHUNK_SIZE / 2)
     self.win_fudge = int(self.win_len / 2)
@@ -37,7 +37,7 @@ class Decoder:
                   rate = RATE,
                   input = True,
                   frames_per_buffer = AUDIOBUF_SIZE)
-    self.coder = OnebyteReadSolomonEcc()
+    self.coder = OnebyteReedSolomonEcc()
     listen_thread = threading.Thread(target = self.listen)
     listen_thread.start()
 
@@ -58,7 +58,7 @@ class Decoder:
       self.update_state(power0, power1, powerC, base)
       self.signal_to_bits()
       self.process_byte()
-    
+
     self.stream.stop_stream()
     self.stream.close()
     self.p.terminate()
@@ -87,10 +87,10 @@ class Decoder:
     if len(self.buffer) < self.buf_len:
       return
     buf = list(self.buffer)
-    
+
     if self.debug:
       self.printbuf(buf)
-    
+
     costs = [[] for i in range(4)]
     for i in range(self.win_fudge):
       win = buf[i : self.win_len + i]
@@ -111,7 +111,7 @@ class Decoder:
     # If we get a charstart signal, reset byte!
     elif signal == 2:
       self.byte = []
-    
+
     # If we get no signal, increment idlecount if we are idling
     if signal == 3:
       self.idlecount += 1
@@ -128,34 +128,11 @@ class Decoder:
       sys.stdout.write('|{}|\n'.format(signal))
       sys.stdout.flush()
 
-
-  def split(self, li, num):
-      l = [li[i:i+8] for i in range(0,24,8)]
-      res = []
-      for dd in l:
-        res.append(self.intint(dd))
-      return res
-
-  def intint(self, bb):
-    ascii = 0
-    for bit in bb:
-      ascii = (ascii << 1) | bit
-    return ascii
-
-  def decode_chr(self):
-    rs = reedsolo.RSCodec(2)
-    print("****")
-    print(self.byte)
-    sl = self.split(self.byte, 8)
-    print("****:sl" + str(sl))
-    return rs.decode(sl)
-
   # For now, just print out the characters as we go.
   def process_byte(self):
-    if len(self.byte) != (8 * 3):
+    if len(self.byte) != self.coder.expected_size():
       return
     char_d = self.coder.decode_from_bytes_string(self.byte)
-    print("*+*:" + char_d)
     if self.character_callback:
       self.character_callback(char_d)
     else:

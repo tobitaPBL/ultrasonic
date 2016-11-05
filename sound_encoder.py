@@ -3,7 +3,7 @@ import argparse
 import numpy as np
 import pyaudio
 from scipy.io import wavfile
-from ecc import OnebyteReadSolomonEcc
+from ecc import OnebyteReedSolomonEcc, EmptyEcc
 
 from constants import *
 
@@ -19,7 +19,7 @@ class Encoder:
                   rate = RATE,
                   output = True,
                   frames_per_buffer = AUDIOBUF_SIZE)
-    self.coder = OnebyteReadSolomonEcc()
+    self.coder = EmptyEcc()
 
   def string2sound(self, somestring):
     samples = None
