@@ -23,6 +23,7 @@ class Transducer:
     # print("Transducer::Decimalize: %s" % [int(d) for d in byte_data])
     # print("Transducer::Binarize: %s" %  [format(int(d), 'b') for d in byte_data])
     self.enc.encodeplay(byte_data)
+    # self.enc.encode2wav(byte_data)
 
   def receive(self):
     u"""

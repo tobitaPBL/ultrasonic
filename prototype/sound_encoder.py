@@ -20,40 +20,28 @@ class Encoder:
                   frames_per_buffer = AUDIOBUF_SIZE)
 
   def string2sound(self, somestring):
-    samples = None
-    count = 0
-    for i in somestring:
-      print(ord(i))
-      print(format(ord(i), 'b'))
-    binform = ''.join('2' + format(ord(i), 'b').zfill(16) for i in somestring)
-    print(binform)
-    soundlist = []
-    for b in binform:
-      freq = ZERO
-      if (b is '1'):
-        freq = ONE
-      elif (b is '2'):
-        freq = CHARSTART
-      soundlist = np.hstack((soundlist, self.getbit(freq)))
+    binform = ''.join('-001' + format(int(i), 'b').zfill(8) for i in somestring) + '-010'#
+    # 2進数にした後、2ビットずつに分割してそれぞれを10進数に変換
+    multiple = [int(binform[i:i+4], 2) for i in range(len(binform)) if i % 4 == 0]#
+    soundlist = np.hstack([self.getbit(CHAR_FREQ[i+2]) for i in multiple])
     return soundlist
 
-  def encode2wav(self, somestring, filename):
+  def encode2wav(self, somestring):
     soundlist = self.string2sound(somestring)
-    wavfile.write(filename,RATE,soundlist.astype(np.dtype('int16')))
+    wavfile.write("test.wav", RATE,soundlist.astype(np.dtype('int16')))
 
   def encodeplay(self, somestring):
     soundlist = self.string2sound(somestring)
     self.stream.write(soundlist.astype(np.dtype('int16')))
 
   def getbit(self, freq):
-
-    music=[]
-    t=np.arange(0,BIT_DURATION,1./RATE) #time
+    music = []
+    t = np.arange(0, BIT_DURATION, 1./RATE) #time
 
     x = np.sin(2*np.pi*freq*t) #generated signals
     x = [int(val * 32000) for val in x]
 
-    sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.01)]
+    sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.04)] #0.01
     sigmoid_inv = sigmoid[::-1]
 
     xstart = len(x) - len(sigmoid)
@@ -61,7 +49,7 @@ class Encoder:
       x[xstart + i] = x[xstart + i] * sigmoid_inv[i]
       x[i] = x[i] * sigmoid[i]
 
-    music=np.hstack((music,x))
+    music = np.hstack((music,x))
     return music
 
   def quit(self):
@@ -76,4 +64,4 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   enc = Encoder()
-  enc.encode2wav(args.text, args.filename)
+  enc.encode2play(args.text)

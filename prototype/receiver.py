@@ -5,7 +5,7 @@ import argparse
 
 class Receiver:
   def __init__(self):
-    self.network = UltrasonicNetwork()
+    self.network = UltrasonicNetwork(mode=2)
     self.transporter = Transporter()
     self.transporter.set_header("charset", "UTF-8") # TODO:必要？ unicodeだけで良いのかも？
 

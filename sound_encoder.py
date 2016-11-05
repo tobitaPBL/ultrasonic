@@ -22,15 +22,22 @@ class Encoder:
   def string2sound(self, somestring):
     samples = None
     count = 0
-    binform = ''.join('2' + format(ord(i), 'b').zfill(8) for i in somestring)
-    soundlist = []
-    for b in binform:
-      freq = ZERO
-      if (b is '1'):
-        freq = ONE
-      elif (b is '2'):
-        freq = CHARSTART
-      soundlist = np.hstack((soundlist, self.getbit(freq)))
+    binform = ''.join('-001' + format(ord(i), 'b').zfill(8) for i in somestring) + '-010'#
+    # 2進数にした後、2ビットずつに分割してそれぞれを10進数に変換
+    multiple = [int(binform[i:i+4], 2) for i in range(len(binform)) if i % 4 == 0]#
+    soundlist = np.hstack([self.getbit(CHAR_FREQ[i+2]) for i in multiple])
+    # soundlist = []
+    # for m in multiple:
+    #   freq = ZERO
+    #   if m == 1:
+    #     freq = ONE
+    #   elif m == 2:
+    #     freq = TWO
+    #   elif m == 3:
+    #     freq = THREE
+    #   elif m == -1:
+    #     freq = CHARSTART
+    #   soundlist = np.hstack((soundlist, self.getbit(freq)))
     return soundlist
 
   def encode2wav(self, somestring, filename):
@@ -43,13 +50,13 @@ class Encoder:
 
   def getbit(self, freq):
 
-    music=[]
-    t=np.arange(0,BIT_DURATION,1./RATE) #time
+    music = []
+    t = np.arange(0, BIT_DURATION, 1./RATE) #time
 
     x = np.sin(2*np.pi*freq*t) #generated signals
     x = [int(val * 32000) for val in x]
 
-    sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.01)]
+    sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.04)] #0.01
     sigmoid_inv = sigmoid[::-1]
 
     xstart = len(x) - len(sigmoid)
@@ -57,7 +64,7 @@ class Encoder:
       x[xstart + i] = x[xstart + i] * sigmoid_inv[i]
       x[i] = x[i] * sigmoid[i]
 
-    music=np.hstack((music,x))
+    music = np.hstack((music,x))
     return music
 
   def quit(self):
