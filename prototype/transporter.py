@@ -15,6 +15,13 @@ class Transporter:
     # データをNetwork層へ渡す
     self.network.send(self.bdata)
 
+  def write_to_file(self, message, filename):
+    # data部をencodeする
+    self.__parse_send_data(message)
+
+    # データをNetwork層へ渡す
+    self.network.write_to_file(self.bdata, filename)
+
   def set_header(self, key, value):
     self.header[key] = value
 

@@ -25,6 +25,14 @@ class Transducer:
     self.enc.encodeplay(byte_data)
     # self.enc.encode2wav(byte_data)
 
+  def write_to_file(self, byte_data, filename):
+    u"""
+    @param byte_data bytearray class data.
+    """
+    if (self.enc == None):
+      raise Exception("Invalid tranceducer mode.")
+    self.enc.encode2wav(byte_data, filename)
+
   def receive(self):
     u"""
     @return bytearray class data.

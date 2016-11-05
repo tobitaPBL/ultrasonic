@@ -36,8 +36,6 @@ class Decoder:
                   rate = RATE,
                   input = True,
                   frames_per_buffer = AUDIOBUF_SIZE)
-    # listen_thread = threading.Thread(target = self.listen)
-    # listen_thread.start()
 
   def listen(self):
     # self.do_listen = True

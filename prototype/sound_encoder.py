@@ -26,9 +26,9 @@ class Encoder:
     soundlist = np.hstack([self.getbit(CHAR_FREQ[i+2]) for i in multiple])
     return soundlist
 
-  def encode2wav(self, somestring):
+  def encode2wav(self, somestring, filename):
     soundlist = self.string2sound(somestring)
-    wavfile.write("test.wav", RATE,soundlist.astype(np.dtype('int16')))
+    wavfile.write(filename, RATE,soundlist.astype(np.dtype('int16')))
 
   def encodeplay(self, somestring):
     soundlist = self.string2sound(somestring)

@@ -22,7 +22,11 @@ class UltrasonicNetwork:
     # ヘッダを含めて全てバイナリ化
     # transducerへ渡す
     self.transducer.send(data)
-    pass
+
+  def write_to_file(self, data, filename):
+    header_data = bytearray(self.__build_header(self.version))
+    data = header_data + bytearray(data)
+    self.transducer.write_to_file(data, filename)
 
   def start_listening(self):
     listen_thread = threading.Thread(target = self.listen)
