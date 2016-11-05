@@ -41,7 +41,7 @@ class Encoder:
     x = np.sin(2*np.pi*freq*t) #generated signals
     x = [int(val * 32000) for val in x]
 
-    sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.04)] #0.01
+    sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.02)] #0.01
     sigmoid_inv = sigmoid[::-1]
 
     xstart = len(x) - len(sigmoid)

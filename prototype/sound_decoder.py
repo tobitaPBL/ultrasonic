@@ -89,20 +89,7 @@ class Decoder:
      # 最大値を求める
     if sum(judge) > 0:
       state = int(np.argmax(pw) - 2)
-
-    # 各周波数のパワーがしきい値を超えているかを判定しているが最大値を見ていない
-    # if power3 / base > THREE_THRESH:
-    #   state = 3
-    # elif power2 / base > TWO_THRESH:
-    #   state = 2
-    # elif power1 / base > ONE_THRESH:
-    #   state = 1
-    # elif power0 / base > ZERO_THRESH:
-    #   state = 0
-    # elif powerC / base > CHARSTART_THRESH:
-    #   state = -1
-    # print int(power0 / base), int(power1 / base), int(powerC / base)
-
+      
     if len(self.buffer) >= self.buf_len:
       self.buffer.popleft()
     self.buffer.append(state)
