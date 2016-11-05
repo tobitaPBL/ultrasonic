@@ -42,7 +42,7 @@ CHAR_THRESH = [20, # end
 			   20, # 12
 			   20, # 13
 			   20, # 14
-			   50] # 15
+			   20] # 15
 
 # CHARSTART = 17600.0
 # CHARSTART_THRESH = 100
