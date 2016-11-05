@@ -1,12 +1,12 @@
 # Audio constants
 RATE = 44100
-CHUNK_SIZE = 256
-AUDIOBUF_SIZE = 1024 #2048
+CHUNK_SIZE = 512
+AUDIOBUF_SIZE = 2048 #2048
 
 # Constants for FSK
-BASELINE = 17200.0
+BASELINE = 17000.0
 
-CHAR_FREQ = [17400.0, # end
+CHAR_FREQ = [17300.0, # end
 			 17500.0, # start
 			 17750.0, # 0
 			 17900.0, # 1
@@ -25,24 +25,24 @@ CHAR_FREQ = [17400.0, # end
 			 19850.0, # 14
 			 20000.0] # 15
 
-CHAR_THRESH = [50, # end
-			   50, # start
-			   50, # 0
-			   50, # 1
-			   50, # 2
-			   50, # 3
-			   50, # 4
-			   50, # 5
-			   50, # 6
-			   50, # 7
-			   50, # 8
-			   50, # 9
-			   50, # 10
-			   50, # 11
-			   50, # 12
-			   50, # 13
-			   50, # 14
-			   50] # 15
+CHAR_THRESH = [20, # end
+			   20, # start
+			   20, # 0
+			   20, # 1
+			   20, # 2
+			   20, # 3
+			   20, # 4
+			   20, # 5
+			   20, # 6
+			   20, # 7
+			   20, # 8
+			   20, # 9
+			   20, # 10
+			   20, # 11
+			   20, # 12
+			   20, # 13
+			   20, # 14
+			   20] # 15
 
 # CHARSTART = 17600.0
 # CHARSTART_THRESH = 100
@@ -59,5 +59,5 @@ CHAR_THRESH = [50, # end
 # THREE = 20000.0
 # THREE_THRESH = 20
 
-BIT_DURATION = 0.025 # 0.1
+BIT_DURATION = 0.05 # 0.1
 IDLE_LIMIT = 10 # If we don't hear anything for a while (~2sec), clear buffer.
