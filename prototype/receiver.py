@@ -2,6 +2,7 @@ from transporter import *
 from ultrasonic_network import *
 import sys
 import argparse
+import time
 
 class Receiver:
   def __init__(self):
@@ -11,7 +12,7 @@ class Receiver:
 
   def parse_data(self, data):
     message = self.transporter.parse_receive_data(data)
-    print("message is : %s" % message)
+    print("[%s] message is : %s" % (time.strftime("%H:%M:%S"), message))
 
   def listen(self):
     self.network.attach_receive_callback(self.parse_data)
