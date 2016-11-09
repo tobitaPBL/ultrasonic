@@ -10,6 +10,7 @@ import threading
 import numpy as np
 
 from constants import *
+from ecc import OnebyteReedSolomonEcc, EmptyEcc
 
 # Mathy things
 TWOPI = 2 * math.pi
@@ -17,7 +18,7 @@ WINDOW = np.hamming(CHUNK_SIZE)
 
 class Decoder:
 
-  def __init__(self, debug):
+  def __init__(self, debug, coder=EmptyEcc()):
     self.win_len = 2 * int(BIT_DURATION * RATE / CHUNK_SIZE / 2)
     self.win_fudge = int(self.win_len / 2)
     self.buffer = deque()
@@ -25,6 +26,7 @@ class Decoder:
     self.byte = []
     self.receivebytes = bytearray()
     self.idlecount = 0
+    self.coder = coder
 
     self.do_quit = False
     self.character_callback = None
@@ -169,33 +171,12 @@ class Decoder:
 
   # For now, just print out the characters as we go.
   def process_byte(self):
-    if len(self.byte) != 2:
+    if len(self.byte) != self.coder.expected_size():
       return
-    #ascii = 0
-    #for bit in self.byte:
-      #ascii = (ascii << 1) | bit
-    byte = int(''.join([format(i, 'b').zfill(4) for i in self.byte]), 2)
-    # print(byte)
-    self.receivebytes.append(byte)#
-    # char = chr(ascii)
-    # if self.character_callback:
-    #   self.character_callback(char)
-    # else:
-    #   sys.stdout.write(char)
-    #   sys.stdout.flush()
+    byte = self.coder.get_decoded_bytes(self.byte)
+    if byte is not None:
+      self.receivebytes.append(byte)#
     self.byte = []
-
-  # def attach_character_callback(self, func):
-  #   self.character_callback = func
-
-  # def attach_idle_callback(self, func):
-  #   self.idle_callback = func
-
-  # def start_listening(self):
-  #   self.do_listen = True
-
-  # def stop_listening(self):
-  #   self.do_listen = False
 
   def quit(self):
     self.do_quit = True

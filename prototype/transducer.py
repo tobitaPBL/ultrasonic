@@ -1,18 +1,19 @@
 from sound_decoder import *
 from sound_encoder import *
 import sys
+from ecc import OnebyteReedSolomonEcc, EmptyEcc
 
 class Transducer:
-  def __init__(self, mode=1, debug=0):
+  def __init__(self, mode=1, debug=0, coder=EmptyEcc()):
     u"""
     @param mode = 1 : encoder , mode = 2 : decoder
     """
     if (mode == 1):
-      self.enc = Encoder()
+      self.enc = Encoder(coder=coder)
       self.dec = None
     else:
       self.enc = None
-      self.dec = Decoder(debug)
+      self.dec = Decoder(debug, coder=coder)
 
   def send(self, byte_data):
     u"""
