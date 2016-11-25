@@ -24,18 +24,33 @@ class Encoder:
 
   def string2sound(self, somestring):
     binform = ''.join('-001' + self.coder.get_encoded_bytes_string(i) for i in somestring) + '-010'#
+    # print(binform)
     # 2進数にした後、2ビットずつに分割してそれぞれを10進数に変換
     multiple = [int(binform[i:i+4], 2) for i in range(len(binform)) if i % 4 == 0]#
+    # print(str(multiple))
     soundlist = np.hstack([self.getbit(CHAR_FREQ[i+2]) for i in multiple])
     return soundlist
 
   def encode2wav(self, somestring, filename):
     soundlist = self.string2sound(somestring)
-    wavfile.write(filename, RATE,soundlist.astype(np.dtype('int16')))
+    # print("data:" + str(soundlist.astype(np.dtype('int16'))))
+    wavfile.write(filename, RATE, soundlist.astype(np.dtype('int16')))
 
   def encodeplay(self, somestring):
     soundlist = self.string2sound(somestring)
-    self.stream.write(soundlist.astype(np.dtype('int16')))
+    data = soundlist.astype(np.dtype('int16'))
+    data_to_send = data.tobytes()
+    # print("data:" + str(data))
+    # print("len:" + str(len(data)))
+    # print("type:" + str(type(data)))
+    # num_frames = int(len(data) / (self.stream._channels * self.stream._format))
+    # print("num_frames:" + str(num_frames))
+    # stream = self.stream
+    # print("channels:" + str(stream._channels))
+    # print("rate:" + str(stream._rate))
+    # print("format:" + str(stream._format))
+    # print("frames_per_buffer:" + str(stream._frames_per_buffer))
+    self.stream.write(data_to_send)
 
   def getbit(self, freq):
     music = []
@@ -49,8 +64,8 @@ class Encoder:
 
     xstart = len(x) - len(sigmoid)
     for i in range(len(sigmoid)):
-      x[xstart + i] = x[xstart + i] * sigmoid_inv[i]
-      x[i] = x[i] * sigmoid[i]
+      x[xstart + i] *= sigmoid_inv[i]
+      x[i] *= sigmoid[i]
 
     music = np.hstack((music,x))
     return music
