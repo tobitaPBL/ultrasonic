@@ -52,9 +52,9 @@ if __name__ == "__main__":
     # 受信 -> デコード
     # ---------------------------------------------------------
     # 1. RS符号での復号を行うデコーダースレッドを起動
-    launch_decoder_through_transducer(OnebyteReedSolomonEcc())
-    # 誤り訂正なしでデコーダースレッドを起動
-    # 2. launch_decoder_through_transducer(EmptyEcc())
+    # launch_decoder_through_transducer(OnebyteReedSolomonEcc())
+    # 2. 誤り訂正なしでデコーダースレッドを起動
+    # launch_decoder_through_transducer(EmptyEcc())
 
     # ---------------------------------------------------------
     # エンコード -> 保存
@@ -68,6 +68,6 @@ if __name__ == "__main__":
     # エンコード -> ストリーム送信
     # ---------------------------------------------------------
     # 5. RS符号化しストリーム送信
-    # send_by_transducer(OnebyteReedSolomonEcc(), "abcdefg")
+    send_by_transducer(OnebyteReedSolomonEcc(), "abcdefg")
     # 6. 誤り訂正なしでストリーム送信
     # send_by_transducer(EmptyEcc(), "abcdefg")

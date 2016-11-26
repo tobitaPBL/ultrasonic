@@ -5,9 +5,9 @@ import argparse
 import time
 
 class Receiver:
-  def __init__(self):
-    self.network = UltrasonicNetwork(mode=2)
-    self.transporter = Transporter()
+  def __init__(self, coder=EmptyEcc()):
+    self.network = UltrasonicNetwork(mode=2, coder=coder)
+    self.transporter = Transporter(coder=coder)
     self.transporter.set_header("charset", "UTF-8") # TODO:必要？ unicodeだけで良いのかも？
 
   def parse_data(self, data):

@@ -3,8 +3,8 @@ import sys
 
 class Transporter:
   DEFAULT_CHARSET = "US-ASCII"
-  def __init__(self):
-    self.network = UltrasonicNetwork()
+  def __init__(self, coder=EmptyEcc()):
+    self.network = UltrasonicNetwork(coder=coder)
     self.header = {}
     self.bdata = None
 

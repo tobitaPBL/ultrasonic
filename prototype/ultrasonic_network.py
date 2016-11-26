@@ -3,11 +3,11 @@ import sys
 import threading
 
 class UltrasonicNetwork:
-  def __init__(self, version=1, mode=1):
+  def __init__(self, version=1, mode=1, coder=EmptyEcc()):
     self.do_quit = False
     self.do_listen = False
     self.version = version
-    self.transducer = Transducer(mode=mode)
+    self.transducer = Transducer(mode=mode, coder=coder)
 
 
   def send(self, data):
