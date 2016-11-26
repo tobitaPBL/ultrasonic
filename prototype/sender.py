@@ -14,9 +14,7 @@ class Sender:
     self.transporter.write_to_file(message, filename)
 
 if __name__ == "__main__":
-  # parser = argparse.ArgumentParser(prog="sender")
-  # parser.add_argument('text', help="The text to send")
-  # parser.add_argument('-f', '--filename', help="The file to generate.", default=None)
-  # args = parser.parse_args()
-  sender = Sender()
-  sender.send("2")
+  parser = argparse.ArgumentParser(prog="sender")
+  parser.add_argument('text', help="The text to send")
+  parser.add_argument('-f', '--filename', help="The file to generate.", default=None)
+  args = parser.parse_args()
