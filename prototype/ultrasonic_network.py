@@ -58,11 +58,12 @@ class UltrasonicNetwork:
 #       self.do_quit = True
 
       data = bytearray(bdata)
-      # ヘッダ取得
-      self.__parse_header(data)
-      # データ部取得
-      data_body = self.__parse_body(data)
-      self.receive_callback(data_body)
+      if len(data) > 0:
+        # ヘッダ取得
+        self.__parse_header(data)
+        # データ部取得
+        data_body = self.__parse_body(data)
+        self.receive_callback(data_body)
 
   def attach_receive_callback(self, func):
     u"""データ受信時コールバック設定
