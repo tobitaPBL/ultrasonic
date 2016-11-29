@@ -18,3 +18,4 @@ if __name__ == "__main__":
   parser.add_argument('text', help="The text to send")
   parser.add_argument('-f', '--filename', help="The file to generate.", default=None)
   args = parser.parse_args()
+  Sender().send(args.text)
