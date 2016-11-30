@@ -6,8 +6,6 @@ u"""Sender, Receiver を介したエンコード・デコードテスト
 from ecc import EmptyEcc, OnebyteReedSolomonEcc
 from receiver import Receiver
 from sender import Sender
-from transducer import Transducer
-import pyautogui
 
 __author__ = 'egg'
 
