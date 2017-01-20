@@ -22,10 +22,12 @@ class Encoder:
   def string2sound(self, somestring):
     samples = None
     count = 0
-    binform = ''.join('-001' + format(ord(i), 'b').zfill(8) for i in somestring) + '-010'#
+    # binform = ''.join('-001' + format(ord(i), 'b').zfill(8) for i in somestring) + '-010'#
     # 2進数にした後、2ビットずつに分割してそれぞれを10進数に変換
-    multiple = [int(binform[i:i+4], 2) for i in range(len(binform)) if i % 4 == 0]#
-    soundlist = np.hstack([self.getbit(CHAR_FREQ[i+2]) for i in multiple])
+    # multiple = [int(binform[i:i+4], 2) for i in range(len(binform)) if i % 4 == 0]#
+    multi = [[str(j) for i in range(20)] for j in range(10)]
+    multiple = [flatten for inner in multi for flatten in inner]
+    soundlist = np.hstack([self.getbit(CHAR_FREQ[int(i)]) for i in multiple])
     # soundlist = []
     # for m in multiple:
     #   freq = ZERO

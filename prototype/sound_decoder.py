@@ -91,7 +91,7 @@ class Decoder:
      # 最大値を求める
     if sum(judge) > 0:
       state = int(np.argmax(pw) - 2)
-      
+
     if len(self.buffer) >= self.buf_len:
       self.buffer.popleft()
     self.buffer.append(state)

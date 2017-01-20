@@ -1,5 +1,6 @@
 from __future__ import division # float division of integers
 from collections import deque
+import matplotlib.pyplot as plt
 
 import pyaudio
 import wave
@@ -16,7 +17,7 @@ TWOPI = 2 * math.pi
 WINDOW = np.hamming(CHUNK_SIZE)
 
 class Decoder:
-  
+
   def __init__(self, debug):
     self.win_len = 2 * int(BIT_DURATION * RATE / CHUNK_SIZE / 2)
     self.win_fudge = int(self.win_len / 2)
@@ -35,7 +36,7 @@ class Decoder:
                   rate = RATE,
                   input = True,
                   frames_per_buffer = AUDIOBUF_SIZE)
-    
+
     listen_thread = threading.Thread(target = self.listen)
     listen_thread.start()
 
@@ -60,10 +61,13 @@ class Decoder:
       #
       # powerC = self.goertzel(CHARSTART)
       base = self.goertzel(BASELINE)
+      print("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f" % (powerlist[0]/base, powerlist[1]/base, powerlist[2]/base, powerlist[3]/base, \
+                                                powerlist[4]/base, powerlist[5]/base, powerlist[6]/base, powerlist[7]/base, \
+                                                powerlist[8]/base, powerlist[9]/base))
       self.update_state(powerlist, base)
       self.signal_to_bits()
       self.process_byte()
-    
+
     self.stream.stop_stream()
     self.stream.close()
     self.p.terminate()
@@ -95,10 +99,10 @@ class Decoder:
       return
 
     buf = list(self.buffer)
-    
+
     if self.debug:
       self.printbuf(buf)
-    
+
     costs = [[] for i in range(19)]#
     for i in range(self.win_fudge):
       win = buf[i : self.win_len + i]
@@ -144,7 +148,7 @@ class Decoder:
       signal = 'e'
       self.byte = []
       self.buffer = deque()
-    
+
     # If we get no signal, increment idlecount if we are idling
     if signal == 18:#
       self.idlecount += 1
@@ -170,11 +174,11 @@ class Decoder:
       #ascii = (ascii << 1) | bit
     ascii = int(''.join([format(i, 'b').zfill(4) for i in self.byte]), 2)#
     char = chr(ascii)
-    if self.character_callback:
-      self.character_callback(char)
-    else:
-      sys.stdout.write(char)
-      sys.stdout.flush()
+    # if self.character_callback:
+    #   self.character_callback(char)
+    # else:
+    #   sys.stdout.write(char)
+    #   sys.stdout.flush()
     self.byte = []
 
   # Determine the raw input signal of silences, 0s, 1s, 2s, and 3s. Insert into sliding window.
@@ -183,6 +187,7 @@ class Decoder:
 
     # 各周波数のパワーがしきい値を超えているか判定
     pw = powerlist / base
+    # print(pw[0])
     th = np.array(CHAR_THRESH)
     judge = pw > th
     pw[judge==False] = 0

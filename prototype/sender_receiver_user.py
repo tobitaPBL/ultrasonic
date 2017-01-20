@@ -2,7 +2,8 @@
 
 u"""Sender, Receiver を介したエンコード・デコードテスト
 """
-
+import sys
+import argparse
 from ecc import EmptyEcc, OnebyteReedSolomonEcc
 from receiver import Receiver
 from sender import Sender
@@ -21,6 +22,9 @@ def send_by_sender(coder, target_str):
 if __name__ == "__main__":
     u"""以下の 1から4のうち、動かしたい機能のコメントを外し、それ以外の行はコメントにする。
     """
+    parser = argparse.ArgumentParser(prog="sender")
+    parser.add_argument('text', help="The text to send")
+    args = parser.parse_args()
 
     # ---------------------------------------------------------
     # 受信
@@ -34,6 +38,6 @@ if __name__ == "__main__":
     # ストリーム送信
     # ---------------------------------------------------------
     # 3. RS符号化しストリーム送信
-    send_by_sender(OnebyteReedSolomonEcc(), "2")
+    # send_by_sender(OnebyteReedSolomonEcc(), "2")
     # 4. 誤り訂正なしでストリーム送信
-    # send_by_sender(EmptyEcc(), "2")
+    send_by_sender(EmptyEcc(), args.text)
