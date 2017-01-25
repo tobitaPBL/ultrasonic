@@ -27,7 +27,7 @@ class EmptyEcc(Ecc):
         Ecc.__init__(self, 1)
 
     def get_encoded_bytes_string(self, target):
-        return format(int(target), 'b').zfill(8)
+        return format(ord(target), 'b').zfill(8) # 数字を2進数に変換するだけだったため文字コードへと変換
 
     def get_decoded_bytes(self, target):
         ascii = int(''.join([format(i, 'b').zfill(4) for i in target]), 2)#
