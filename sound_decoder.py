@@ -61,9 +61,8 @@ class Decoder:
       #
       # powerC = self.goertzel(CHARSTART)
       base = self.goertzel(BASELINE)
-      print("%f, %f, %f, %f, %f, %f, %f, %f, %f, %f" % (powerlist[0]/base, powerlist[1]/base, powerlist[2]/base, powerlist[3]/base, \
-                                                powerlist[4]/base, powerlist[5]/base, powerlist[6]/base, powerlist[7]/base, \
-                                                powerlist[8]/base, powerlist[9]/base))
+      print("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f" % (powerlist[0]/base, powerlist[1]/base, powerlist[2]/base, powerlist[3]/base, \
+                                                powerlist[4]/base, powerlist[5]/base, powerlist[6]/base, powerlist[7]/base))
       self.update_state(powerlist, base)
       self.signal_to_bits()
       self.process_byte()

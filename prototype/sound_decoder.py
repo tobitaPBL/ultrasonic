@@ -27,7 +27,7 @@ class Decoder:
     self.receivebytes = bytearray()
     self.idlecount = 0
     self.coder = coder
-    self.char_window = [deque() for i in range(len(CHAR_FREQ) + 1)]
+    self.char_window = [deque() for i in range(len(CHAR_FREQ))]
     self.base_window = deque()
     self.med_len = 5
     self.char_median = [0 for i in range(8)]
@@ -57,13 +57,11 @@ class Decoder:
       #   continue
       self.audio = list(struct.unpack("%dh" % CHUNK_SIZE, audiostr))
       self.window()
-      [char_window[CHAR_FREQ.index(i)].append(self.goertzel(i)) for i in CHAR_FREQ]
-      base_window.append(self.goertzel(BASELINE))
+      [self.char_window[CHAR_FREQ.index(i)].append(self.goertzel(i)) for i in CHAR_FREQ]
+      self.base_window.append(self.goertzel(BASELINE))
 
-    #   powerlist = np.array([self.goertzel(i) for i in CHAR_FREQ])
-    #   base = self.goertzel(BASELINE)
-      if len(base_window) >= self.med_len:
-        self.calc_median(char_window, base_window)
+      if len(self.base_window) >= self.med_len:
+        self.calc_median()
         self.update_state(self.char_median, self.base_median)
         self.signal_to_bits()
         self.process_byte()
@@ -89,7 +87,8 @@ class Decoder:
     return int(power) + 1 # prevents division by zero problems
 
   def calc_median(self):
-    [self.char_median[self.char_window.index(i)] = np.median(i) for i in self.char_window]
+    for i in range(len(self.char_window)):
+        self.char_median[i] = np.median(self.char_window[i])
     self.base_median = np.median(self.base_window)
     [i.popleft() for i in self.char_window]
     self.base_window.popleft()
@@ -100,13 +99,10 @@ class Decoder:
 
     # 各周波数のパワーがしきい値を超えているか判定
     pw = powerlist / base
+    # print("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f" % (pw[0], pw[1], pw[2], pw[3], \
+    #                                           pw[4], pw[5], pw[6], pw[7]))
     th = np.array(CHAR_THRESH)
     judge = pw > th
-    # pw[judge==False] = 0
-
-     # 最大値を求める
-    # if sum(judge) > 0:
-    #   state = int(np.argmax(pw) - 2)
 
     if len(self.buffer[0]) >= self.buf_len:
       [i.popleft() for i in self.buffer]
@@ -120,40 +116,17 @@ class Decoder:
 
     buf = [list(i) for i in self.buffer]
 
-    # if self.debug:
-    #   self.printbuf(buf)
-
     costs = [[] for i in range(8)]#
     for i in range(self.win_fudge):
       win = [j[i : self.win_len + i] for j in buf]
       #
       for j in range(len(win)):
         costs[j].append(sum(win[j]))
-    #   costs[0].append(sum(x != True for x in win[0]))
-    #   costs[1].append(sum(x != True for x in win[1]))
-    #   costs[2].append(sum(x != True for x in win[2]))
-    #   costs[3].append(sum(x != True for x in win[3]))
-    #   costs[4].append(sum(x != True for x in win[4]))
-    #   costs[5].append(sum(x != True for x in win[5]))
-    #   costs[6].append(sum(x != True for x in win[6]))
-    #   costs[7].append(sum(x != True for x in win[7]))
-    #   costs[8].append(sum(x != 8 for x in win))
-    #   costs[9].append(sum(x != 9 for x in win))
-    #   costs[10].append(sum(x != 10 for x in win))
-    #   costs[11].append(sum(x != 11 for x in win))
-    #   costs[12].append(sum(x != 12 for x in win))
-    #   costs[13].append(sum(x != 13 for x in win))
-    #   costs[14].append(sum(x != 14 for x in win))
-    #   costs[15].append(sum(x != 15 for x in win))
-    #   costs[16].append(sum(x != -1 for x in win))
-    #   costs[17].append(sum(x != -2 for x in win))
-    #   costs[18].append(sum(x != -3 for x in win))
-      #
     max_costs = np.array([max(costs[i]) for i in range(8)])#
     max_cost = max(max_costs)
     signal = np.where(max_costs > 2)[0]
     signal = sum([2**i for i in signal])
-    max_index = int(np.where(max_costs == max_cost)[0])
+    max_index = int(np.where(max_costs == max_cost)[0][0])
     fudge = costs[max_index].index(max_cost)
     for i in range(self.win_len + fudge):
       [j.popleft() for j in self.buffer]
@@ -175,56 +148,17 @@ class Decoder:
       self.idlecount = 0
       self.idle_callback()
 
-
-    # # If we got a signal, put it in the byte!
-    # if signal < 16:#
-    #   self.byte.append(signal)
-    #
-    # # If we get a charstart signal, reset byte!
-    # elif signal == 16:#
-    #   signal = 's'
-    #   self.byte = []
-    #
-    # # If we get a charend signal, reset byte!
-    # elif signal == 17:#
-    #   signal = 'e'
-    #   self.byte = []
-    #   self.buffer = deque()
-    #   self.quit()
-    #
-    # # If we get no signal, increment idlecount if we are idling
-    # if signal == 18:#
-    #   self.idlecount += 1
-    # else:
-    #   self.idlecount = 0
-    # if self.idlecount > IDLE_LIMIT and self.idle_callback:
-    #   self.idlecount = 0
-    #   self.idle_callback()
-    #
-    # if self.debug:
-    #   if signal == 18:#
-    #     signal = '-'
-    #   sys.stdout.write('')
-    #   sys.stdout.write('|{}|\n'.format(signal))
-    #   sys.stdout.flush()
-
   # For now, just print out the characters as we go.
   def process_byte(self):
     if len(self.byte) != self.coder.expected_size():
       return
-    byte = self.coder.get_decoded_bytes(self.byte)
-    if byte is not None:
-      self.receivebytes.append(byte)#
+    # byte = self.coder.get_decoded_bytes(self.byte)
+    # if byte is not None:
+    self.receivebytes.append(self.byte)#
     self.byte = []
 
   def quit(self):
     self.do_quit = True
-
-  # def printbuf(self, buf):
-  #   newbuf = ['-' if x is -3 else x for x in buf]#
-  #   newbuf = ['s' if x is -1 else x for x in newbuf]#
-  #   newbuf = ['e' if x is -2 else x for x in newbuf]#
-  #   print(repr(newbuf).replace(', ', ' ').replace('\'', ''))
 
 def main():
   if len(sys.argv) == 2 and sys.argv[1] == 'debug':
