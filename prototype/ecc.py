@@ -7,7 +7,7 @@ import reedsolo
 class Ecc(object):
     def __init__(self, nsym):
         self.nsym = nsym
-        self.symbol_len_per_byte = 2
+        self.symbol_len_per_byte = 1
 
     def expected_size(self):
         u"""想定する処理単位のサイズを返す。"""
@@ -30,7 +30,7 @@ class EmptyEcc(Ecc):
         return format(ord(target), 'b').zfill(8) # 数字を2進数に変換するだけだったため文字コードへと変換
 
     def get_decoded_bytes(self, target):
-        ascii = int(''.join([format(i, 'b').zfill(4) for i in target]), 2)#
+        ascii = int(format(target, 'b').zfill(8), 2)#
         return ascii
 
 class ReedSolomonEcc(Ecc):
