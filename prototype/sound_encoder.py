@@ -25,11 +25,11 @@ class Encoder:
   def string2sound(self, somestring):
     # format((1^255)+1,'b') # -1 (2の補数)
     # format((2^255)+1,'b') # -2 (2の補数)
-    multi = ['00000010' for i in range(20)]
-    multiple = ''.join(flatten for inner in multi for flatten in inner)
-    binary = [multiple[i:i+8] for i in range(len(multiple)) if i % 8 == 0] # 2
-    # binform = ''.join(format((1^255)+1,'b') + self.coder.get_encoded_bytes_string(i) for i in somestring) + format((2^255)+1,'b') # 1
-    # binary = [binform[i:i+8] for i in range(len(binform)) if i % 8 == 0] # 2
+    # multi = ['00000001' for i in range(20)]
+    # multiple = ''.join(flatten for inner in multi for flatten in inner)
+    # binary = [multiple[i:i+8] for i in range(len(multiple)) if i % 8 == 0] # 2
+    binform = ''.join(format((1^255)+1,'b') + self.coder.get_encoded_bytes_string(i) for i in somestring) + format((2^255)+1,'b') # 1
+    binary = [binform[i:i+8] for i in range(len(binform)) if i % 8 == 0] # 2
     idxlist = []
     for i in binary:
         index = -1

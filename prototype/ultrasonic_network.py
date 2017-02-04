@@ -90,4 +90,3 @@ class UltrasonicNetwork:
   def __parse_body(self, data):
       # data body
       return data[1:]
-

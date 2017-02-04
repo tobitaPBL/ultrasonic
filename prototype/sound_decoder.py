@@ -62,7 +62,7 @@ class Decoder:
 
       if len(self.base_window) >= self.med_len:
         self.calc_median()
-        self.update_state(self.char_median, self.base_median)
+        self.update_state()
         self.signal_to_bits()
         self.process_byte()
 
@@ -94,11 +94,11 @@ class Decoder:
     self.base_window.popleft()
 
   # Determine the raw input signal of silences, 0s, 1s, 2s, and 3s. Insert into sliding window.
-  def update_state(self, powerlist, base):
+  def update_state(self):
     # state = -3 # 無音
 
     # 各周波数のパワーがしきい値を超えているか判定
-    pw = powerlist / base
+    pw = self.char_median / self.base_median
     # print("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f" % (pw[0], pw[1], pw[2], pw[3], \
     #                                           pw[4], pw[5], pw[6], pw[7]))
     th = np.array(CHAR_THRESH)
@@ -106,8 +106,8 @@ class Decoder:
 
     if len(self.buffer[0]) >= self.buf_len:
       [i.popleft() for i in self.buffer]
-    for i in range(8):
-      self.buffer[i].append(judge[i])
+    for i in range(len(CHAR_FREQ)):
+      self.buffer[i].append(judge[i]) # True or False
 
   # Takes the raw noisy samples of -1/0/1 and finds the bitstream from it
   def signal_to_bits(self):
@@ -116,20 +116,23 @@ class Decoder:
 
     buf = [list(i) for i in self.buffer]
 
-    costs = [[] for i in range(8)]#
+    costs = [[] for i in range(len(CHAR_FREQ))]#
     for i in range(self.win_fudge):
       win = [j[i : self.win_len + i] for j in buf]
       #
       for j in range(len(win)):
         costs[j].append(sum(win[j]))
-    max_costs = np.array([max(costs[i]) for i in range(8)])#
+    max_costs = np.array([max(costs[i]) for i in range(len(CHAR_FREQ))])#
     max_cost = max(max_costs)
-    signal = np.where(max_costs > 2)[0]
+    signal = 7 - np.where(max_costs > 2)[0]
+    # print(signal)
     signal = sum([2**i for i in signal])
     max_index = int(np.where(max_costs == max_cost)[0][0])
     fudge = costs[max_index].index(max_cost)
     for i in range(self.win_len + fudge):
       [j.popleft() for j in self.buffer]
+
+    # print(signal)
 
     if signal == 255:   # If we get a charstart signal, reset byte!
       self.byte = []
@@ -155,6 +158,7 @@ class Decoder:
     # byte = self.coder.get_decoded_bytes(self.byte)
     # if byte is not None:
     self.receivebytes.append(self.byte)#
+    # print(self.byte)
     self.byte = []
 
   def quit(self):
