@@ -18,7 +18,7 @@ class UltrasonicNetwork:
     header_data = bytearray(self.__build_header(self.version))
     data = header_data + bytearray(data)
     print("Decimalize: %s" % [int(d) for d in data])
-    print("Binarize: %s" %  [format(int(d), 'b') for d in data])
+    print("Binarize: %s" %  [format(int(d), 'b').zfill(8) for d in data])
     # ヘッダを含めて全てバイナリ化
     # transducerへ渡す
     self.transducer.send(data)

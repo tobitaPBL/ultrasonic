@@ -52,7 +52,7 @@ def main():
       data = tranceducer.receive()
       # print(data.decode("UTF-8"))
       print("Transducer::Decode Decimalize: %s" % [int(d) for d in data])
-      print("Transducer::Decode Binarize: %s" %  [format(int(d), 'b') for d in data])
+      print("Transducer::Decode Binarize: %s" %  [format(int(d), 'b').zfill(8) for d in data])
 
 if __name__ == "__main__":
   main()

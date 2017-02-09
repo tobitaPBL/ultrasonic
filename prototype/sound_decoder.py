@@ -14,7 +14,7 @@ from ecc import OnebyteReedSolomonEcc, EmptyEcc
 
 # Mathy things
 TWOPI = 2 * math.pi
-WINDOW = np.hamming(CHUNK_SIZE)
+WINDOW = np.hanning(CHUNK_SIZE)
 
 class Decoder:
 
@@ -93,53 +93,82 @@ class Decoder:
     [i.popleft() for i in self.char_window]
     self.base_window.popleft()
 
-  # Determine the raw input signal of silences, 0s, 1s, 2s, and 3s. Insert into sliding window.
   def update_state(self):
-    # state = -3 # 無音
-
     # 各周波数のパワーがしきい値を超えているか判定
     pw = self.char_median / self.base_median
-    # print("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f" % (pw[0], pw[1], pw[2], pw[3], \
-    #                                           pw[4], pw[5], pw[6], pw[7]))
+    print("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f" % (pw[0], pw[1], pw[2], pw[3], \
+                                              pw[4], pw[5], pw[6], pw[7]))
     th = np.array(CHAR_THRESH)
     judge = pw > th
+    # print(judge+0)
 
-    if len(self.buffer[0]) >= self.buf_len:
-      [i.popleft() for i in self.buffer]
     for i in range(len(CHAR_FREQ)):
       self.buffer[i].append(judge[i]) # True or False
+    # if len(self.buffer[0]) > self.buf_len:
+    #   [i.popleft() for i in self.buffer]
+
 
   # Takes the raw noisy samples of -1/0/1 and finds the bitstream from it
   def signal_to_bits(self):
     if len(self.buffer[0]) < self.buf_len:
       return
-
     buf = [list(i) for i in self.buffer]
+    print(np.array(buf).transpose()+0, '\n')
 
-    costs = [[] for i in range(len(CHAR_FREQ))]#
-    for i in range(self.win_fudge):
-      win = [j[i : self.win_len + i] for j in buf]
-      #
-      for j in range(len(win)):
-        costs[j].append(sum(win[j]))
-    max_costs = np.array([max(costs[i]) for i in range(len(CHAR_FREQ))])#
+    costs = [[] for i in range(self.win_len)]#
+    for i in range(self.win_fudge+1):
+      win = np.array([j[i : self.win_len + i] for j in buf]).transpose()
+    #   print(np.array(win)+0)
+      for j in range(self.win_len):
+        if sum(win[j]) != 0:
+          costs[j].append(win.tolist().count(win[j].tolist()))
+        else:
+          costs[j].append(0)
+    t_costs = np.array(costs).transpose()
+    # print('\n', t_costs)
+    max_costs = np.array([max(t_costs[i]) for i in range(len(t_costs))])#
     max_cost = max(max_costs)
-    signal = 7 - np.where(max_costs > 2)[0]
-    # print(signal)
-    signal = sum([2**i for i in signal])
-    max_index = int(np.where(max_costs == max_cost)[0][0])
-    fudge = costs[max_index].index(max_cost)
-    for i in range(self.win_len + fudge):
-      [j.popleft() for j in self.buffer]
+    if max_cost >= 3:
+        max_index = np.where(max_costs == max_cost)[0][0]
+        win = np.array([j[max_index : self.win_len + max_index] for j in buf]).transpose()
+        signal = np.array(win[t_costs[max_index].tolist().index(max_cost)]) + 0 # booleanから数値
+        signal = int(''.join(map(str, signal.tolist())), 2)
+        # print(signal)
+    else:
+        max_index = 2
+        signal = 0
 
-    # print(signal)
+    for i in range(self.win_len + max_index):
+      [j.popleft() for j in self.buffer]
+    print("signal: ",signal,'\n')
+
+    # costs = [[] for i in range(len(CHAR_FREQ))]#
+    # for i in range(self.win_fudge+1):
+    #   win = [j[i : self.win_len + i] for j in buf]
+    # #   print(np.array(win).transpose()+0)
+    #   for j in range(len(win)):
+    #     costs[j].append(sum(win[j]))
+    # max_costs = np.array([max(costs[i]) for i in range(len(CHAR_FREQ))])#
+    # max_cost = max(max_costs)
+    # signal = 7 - np.where(max_costs >= 3)[0]
+    # # print(signal)
+    # signal = sum([2**i for i in signal])
+    # max_index = list(max_costs).index(max_cost)#int(np.where(max_costs == max_cost)[0][0])
+    # fudge = costs[max_index].index(max_cost)
+    # # print("fudge: ",fudge)
+    # for i in range(self.win_len + fudge):
+    #   [j.popleft() for j in self.buffer]
+    # print(len(self.buffer[0]))
+    # # print(self.buffer)
+    # print("signal: ",signal,'\n')
 
     if signal == 255:   # If we get a charstart signal, reset byte!
       self.byte = []
       self.idlecount = 0
+    #   self.buffer = [deque() for i in range(len(CHAR_FREQ))]
     elif signal == 254: # If we get a charend signal, reset byte!
       self.byte = []
-      self.buffer = deque()
+      self.buffer = [deque() for i in range(len(CHAR_FREQ))]
       self.quit()
     elif signal == 0:   # If we get no signal, increment idlecount if we are idling
       self.idlecount += 1
@@ -147,18 +176,19 @@ class Decoder:
       self.byte.append(signal)
       self.idlecount = 0
 
-    if self.idlecount > IDLE_LIMIT and self.idle_callback:
+    if self.idlecount > IDLE_LIMIT:
       self.idlecount = 0
-      self.idle_callback()
+      self.receivebytes = bytearray()
+      self.byte = []
+      self.buffer = [deque() for i in range(len(CHAR_FREQ))]
+    #   self.idle_callback()
 
   # For now, just print out the characters as we go.
   def process_byte(self):
     if len(self.byte) != self.coder.expected_size():
       return
-    # byte = self.coder.get_decoded_bytes(self.byte)
-    # if byte is not None:
-    self.receivebytes.append(self.byte)#
-    # print(self.byte)
+    self.receivebytes.append(self.byte[0])#
+    # print(self.receivebytes.decode())
     self.byte = []
 
   def quit(self):

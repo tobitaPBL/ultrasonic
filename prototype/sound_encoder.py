@@ -25,7 +25,7 @@ class Encoder:
   def string2sound(self, somestring):
     # format((1^255)+1,'b') # -1 (2の補数)
     # format((2^255)+1,'b') # -2 (2の補数)
-    # multi = ['00000001' for i in range(20)]
+    # multi = ['11111111' for i in range(20)]
     # multiple = ''.join(flatten for inner in multi for flatten in inner)
     # binary = [multiple[i:i+8] for i in range(len(multiple)) if i % 8 == 0] # 2
     binform = ''.join(format((1^255)+1,'b') + self.coder.get_encoded_bytes_string(i) for i in somestring) + format((2^255)+1,'b') # 1
@@ -44,8 +44,8 @@ class Encoder:
     tmpsound = np.empty((0,2250), float)
     soundlist = []
     for j in idxlist:
-        tmpsound = np.vstack([self.getbit(CHAR_FREQ[i]) for i in j])
-        soundlist = np.hstack((soundlist, sum(tmpsound)/len(j)))
+        tmpsound = np.vstack([self.getsin(CHAR_FREQ[i]) for i in j])
+        soundlist = np.hstack((soundlist, self.sigmoid(self.normalize(sum(tmpsound)/len(CHAR_FREQ)))))
 
     return soundlist
 
@@ -78,12 +78,14 @@ class Encoder:
     # print("frames_per_buffer:" + str(stream._frames_per_buffer))
     self.stream.write(data_to_send)
 
-  def getbit(self, freq):
-    music = []
+  def getsin(self, freq):
     t = np.arange(0, BIT_DURATION, 1./RATE) #time
-
     x = np.sin(2*np.pi*freq*t) #generated signals
-    x = [int(val * 32000) for val in x]
+    return x
+
+  def sigmoid(self, sinwave):
+    music = []
+    x = [int(val * 32000) for val in sinwave]
 
     sigmoid = [1 / (1 + np.power(np.e, -t)) for t in np.arange(-6, 6, 0.02)] #0.01
     sigmoid_inv = sigmoid[::-1]
@@ -95,6 +97,17 @@ class Encoder:
 
     music = np.hstack((music,x))
     return music
+
+  def normalize(self, sound):
+    smax = max(sound)
+    smin = min(sound)
+    # print(smax, smin)
+
+    norm_sound = sound / smax
+    # smax = max(norm_sound)
+    # smin = min(norm_sound)
+    # print(smax, smin)
+    return norm_sound
 
   def quit(self):
     self.stream.stop_stream()
