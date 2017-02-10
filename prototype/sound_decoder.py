@@ -96,8 +96,8 @@ class Decoder:
   def update_state(self):
     # 各周波数のパワーがしきい値を超えているか判定
     pw = self.char_median / self.base_median
-    print("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f" % (pw[0], pw[1], pw[2], pw[3], \
-                                              pw[4], pw[5], pw[6], pw[7]))
+    # print("%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f" % (pw[0], pw[1], pw[2], pw[3], \
+    #                                           pw[4], pw[5], pw[6], pw[7]))
     th = np.array(CHAR_THRESH)
     judge = pw > th
     # print(judge+0)
@@ -113,7 +113,7 @@ class Decoder:
     if len(self.buffer[0]) < self.buf_len:
       return
     buf = [list(i) for i in self.buffer]
-    print(np.array(buf).transpose()+0, '\n')
+    # print(np.array(buf).transpose()+0, '\n')
 
     costs = [[] for i in range(self.win_len)]#
     for i in range(self.win_fudge+1):
@@ -140,7 +140,7 @@ class Decoder:
 
     for i in range(self.win_len + max_index):
       [j.popleft() for j in self.buffer]
-    print("signal: ",signal,'\n')
+    # print("signal: ",signal,'\n')
 
     # costs = [[] for i in range(len(CHAR_FREQ))]#
     # for i in range(self.win_fudge+1):
